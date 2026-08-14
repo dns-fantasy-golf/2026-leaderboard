@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sydney vs Derrick — Fantasy Golf League</title>
+<style>
+  :root{
+    --pink:#e87ba4; --pink-dark:#c85c85; --pink-soft:#fbe9f0;
+    --green:#008300; --green-dark:#006400; --green-soft:#e3f4e3;
+    --ink:#1e2530; --muted:#6b7280; --card:#ffffff; --bg:#f4f5f7; --line:#e6e8ec;
+    --eagle:#7b3fe4; --birdie:#c0392b; --bogey:#2563eb; --dbl:#1e3a8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;padding:24px 14px 60px}
+  .wrap{max-width:980px;margin:0 auto}
+  header{text-align:center;margin-bottom:22px}
+  header .eyebrow{letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted);font-weight:700}
+  header h1{font-size:30px;margin:6px 0 4px}
+  header .sub{color:var(--muted);font-size:15px}
+  .status{display:inline-block;margin-top:12px;background:#fff;border:1px solid var(--line);
+    border-radius:999px;padding:7px 16px;font-size:13px;font-weight:600}
+  .status .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--green);margin-right:7px;vertical-align:middle}
+
+  .scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin:22px 0}
+  .team{border-radius:18px;padding:20px;color:#fff;position:relative;overflow:hidden}
+  .team.syd{background:linear-gradient(135deg,var(--pink),var(--pink-dark))}
+  .team.der{background:linear-gradient(135deg,var(--green),var(--green-dark))}
+  .team .name{font-size:15px;font-weight:700;letter-spacing:.03em;opacity:.95}
+  .team .score{font-size:52px;font-weight:800;line-height:1;margin:8px 0 2px}
+  .team .label{font-size:12px;opacity:.9}
+  .team.lead::after{content:"▲ LEADING";position:absolute;top:14px;right:14px;font-size:11px;
+    font-weight:800;letter-spacing:.06em;background:rgba(255,255,255,.22);padding:4px 9px;border-radius:999px}
+  .vs{display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--muted);font-size:20px}
+
+  section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px}
+  section h2{font-size:17px;margin-bottom:4px}
+  section .cap{font-size:13px;color:var(--muted);margin-bottom:14px}
+
+  table.brk{width:100%;border-collapse:collapse;font-size:14px}
+  .brk th,.brk td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line)}
+  .brk th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .brk td.num,.brk th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
+  .pill.syd{background:var(--pink)} .pill.der{background:var(--green)}
+  tr.total td{font-weight:800;border-top:2px solid var(--ink);border-bottom:none;background:#fafafa}
+  .syd-row{background:linear-gradient(90deg,var(--pink-soft),transparent 60%)}
+  .der-row{background:linear-gradient(90deg,var(--green-soft),transparent 60%)}
+  .bon{font-size:11px;color:var(--muted)}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .mini h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center}
+  .season-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .season-row:last-child{border-bottom:none}
+  .season-row b{font-variant-numeric:tabular-nums}
+
+  /* hole-by-hole grids */
+  .card-sc{border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;margin-bottom:14px}
+  .card-sc .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+  .card-sc .hd .nm{font-weight:700;font-size:15px;display:flex;align-items:center}
+  .card-sc .hd .rt{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .card-sc .hd .rt b{color:var(--ink)}
+  .sc{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+  .sc td,.sc th{border:1px solid var(--line);text-align:center;padding:4px 0;width:5%}
+  .sc th{background:#fafafa;color:var(--muted);font-weight:700;font-size:11px}
+  .sc .lab{width:8%;text-align:left;padding-left:6px;color:var(--muted);font-weight:700;font-size:11px;background:#fafafa}
+  .sc .sum{background:#f2f3f5;font-weight:700}
+  .s-eagle{color:#fff;background:var(--eagle);border-radius:50%;font-weight:800}
+  .s-birdie{color:#fff;background:var(--birdie);border-radius:50%;font-weight:800}
+  .s-bogey{color:#fff;background:var(--bogey);font-weight:700}
+  .s-dbl{color:#fff;background:var(--dbl);font-weight:700}
+  .chip{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:999px;background:#fff3cd;color:#8a6d00;border:1px solid #f0e2b8;margin-left:6px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .dotk{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .verified{font-size:12.5px;color:var(--green-dark);background:var(--green-soft);border:1px solid #bfe3bf;border-radius:10px;padding:10px 14px;margin-top:6px}
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
+  @media(max-width:640px){
+    .scoreboard{grid-template-columns:1fr}.vs{display:none}
+    .two{grid-template-columns:1fr}.team .score{font-size:44px}
+    .sc{font-size:11px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Sydney &nbsp;vs&nbsp; Derrick · Fantasy Golf League</div>
+    <h1>FedEx St. Jude Championship 2026</h1>
+    <div class="sub">TPC Southwind · Memphis, TN · Aug 13–16, 2026 · No-cut FedExCup Playoff (69 players)</div>
+    <div class="status"><span class="dot"></span>Round 1 of 4 complete — verified scorecards</div>
+  </header>
+
+  <div class="scoreboard">
+    <div class="team syd lead">
+      <div class="name">SYDNEY</div>
+      <div class="score">100.0</div>
+      <div class="label">event points · Round 1</div>
+    </div>
+    <div class="vs">vs</div>
+    <div class="team der">
+      <div class="name">DERRICK</div>
+      <div class="score">85.0</div>
+      <div class="label">event points · Round 1</div>
+    </div>
+  </div>
+
+  <!-- BREAKDOWN -->
+  <section>
+    <h2>Player breakdown — FedEx St. Jude (Round 1)</h2>
+    <div class="cap">Points computed hole-by-hole from official scorecards. Par 70.</div>
+    <table class="brk">
+      <thead>
+        <tr><th>Player</th><th>Team</th><th class="num">R1</th><th class="num">Par</th>
+        <th class="num">Eag</th><th class="num">Bir</th><th class="num">Bog</th><th class="num">Dbl</th>
+        <th>Bonus</th><th class="num">Points</th></tr>
+      </thead>
+      <tbody>
+        <tr class="syd-row"><td>Hideki Matsuyama</td><td><span class="pill syd"></span>Syd</td><td class="num">66</td><td class="num">−4</td><td class="num">0</td><td class="num">7</td><td class="num">3</td><td class="num">0</td><td class="bon">Birdie streak +3</td><td class="num">26.5</td></tr>
+        <tr class="syd-row"><td>Xander Schauffele</td><td><span class="pill syd"></span>Syd</td><td class="num">67</td><td class="num">−3</td><td class="num">1</td><td class="num">3</td><td class="num">2</td><td class="num">0</td><td class="bon">Birdie streak +3</td><td class="num">25.0</td></tr>
+        <tr class="syd-row"><td>Viktor Hovland</td><td><span class="pill syd"></span>Syd</td><td class="num">68</td><td class="num">−2</td><td class="num">0</td><td class="num">5</td><td class="num">1</td><td class="num">1</td><td class="bon">Birdie streak +3</td><td class="num">22.0</td></tr>
+        <tr class="syd-row"><td>Sam Burns</td><td><span class="pill syd"></span>Syd</td><td class="num">67</td><td class="num">−3</td><td class="num">0</td><td class="num">4</td><td class="num">1</td><td class="num">0</td><td class="bon">—</td><td class="num">18.0</td></tr>
+        <tr class="syd-row"><td>Rory McIlroy</td><td><span class="pill syd"></span>Syd</td><td class="num">74</td><td class="num">+4</td><td class="num">0</td><td class="num">2</td><td class="num">4</td><td class="num">1</td><td class="bon">—</td><td class="num">8.5</td></tr>
+        <tr class="total"><td colspan="9">SYDNEY — event total</td><td class="num">100.0</td></tr>
+
+        <tr class="der-row"><td>Tommy Fleetwood</td><td><span class="pill der"></span>Der</td><td class="num">66</td><td class="num">−4</td><td class="num">1</td><td class="num">3</td><td class="num">1</td><td class="num">0</td><td class="bon">—</td><td class="num">23.0</td></tr>
+        <tr class="der-row"><td>Si Woo Kim</td><td><span class="pill der"></span>Der</td><td class="num">70</td><td class="num">E</td><td class="num">1</td><td class="num">2</td><td class="num">2</td><td class="num">1</td><td class="bon">—</td><td class="num">18.0</td></tr>
+        <tr class="der-row"><td>Scottie Scheffler</td><td><span class="pill der"></span>Der</td><td class="num">68</td><td class="num">−2</td><td class="num">0</td><td class="num">3</td><td class="num">1</td><td class="num">0</td><td class="bon">—</td><td class="num">15.5</td></tr>
+        <tr class="der-row"><td>Jackson Koivun</td><td><span class="pill der"></span>Der</td><td class="num">71</td><td class="num">+1</td><td class="num">0</td><td class="num">4</td><td class="num">3</td><td class="num">1</td><td class="bon">—</td><td class="num">14.5</td></tr>
+        <tr class="der-row"><td>Matt Fitzpatrick</td><td><span class="pill der"></span>Der</td><td class="num">70</td><td class="num">E</td><td class="num">0</td><td class="num">3</td><td class="num">1</td><td class="num">1</td><td class="bon">—</td><td class="num">14.0</td></tr>
+        <tr class="total"><td colspan="9">DERRICK — event total</td><td class="num">85.0</td></tr>
+      </tbody>
+    </table>
+    <div class="verified">✓ Verified from official Round 1 scorecards (PGA TOUR). Per hole: Eagle +8, Birdie +3, Par +0.5, Bogey −0.5, Double+ −1. Bonuses this round: 3-birdie streak (+3) for Matsuyama, Schauffele &amp; Hovland. No bogey-free rounds. Finish-position points apply only after Round 4.</div>
+  </section>
+
+  <!-- HOLE BY HOLE -->
+  <section>
+    <h2>Hole-by-hole scorecards — Round 1</h2>
+    <div class="legend">
+      <span><i class="dotk" style="background:var(--eagle)"></i>Eagle</span>
+      <span><i class="dotk" style="background:var(--birdie)"></i>Birdie</span>
+      <span><i class="dotk" style="background:#fff;border:1px solid var(--line)"></i>Par</span>
+      <span><i class="dotk" style="background:var(--bogey)"></i>Bogey</span>
+      <span><i class="dotk" style="background:var(--dbl)"></i>Double+</span>
+    </div>
+    <div id="cards"></div>
+  </section>
+
+  <div class="two">
+    <section class="mini">
+      <h3><span class="pill syd"></span>&nbsp;Season standings <span style="color:var(--muted);font-weight:400;margin-left:6px">(before St. Jude)</span></h3>
+      <div class="season-row"><span>🥇 Sydney</span><b>1127.0</b></div>
+      <div class="season-row"><span>🥈 Derrick</span><b>886.5</b></div>
+      <div class="verified" style="background:var(--pink-soft);border-color:#f0cdda;color:var(--pink-dark)">
+        St. Jude points add to the season total once Round 4 is final. Live projection with R1 points:
+        <b>Sydney 1227.0 · Derrick 971.5</b>.
+      </div>
+    </section>
+    <section class="mini">
+      <h3>🏆&nbsp;Events won</h3>
+      <div class="season-row"><span><span class="pill syd"></span>Sydney</span><b>2</b></div>
+      <div class="season-row"><span><span class="pill der"></span>Derrick</span><b>1</b></div>
+      <div class="season-row" style="color:var(--muted);font-size:13px"><span>3M Open</span><span>Derrick 434.5 · Syd 319</span></div>
+      <div class="season-row" style="color:var(--muted);font-size:13px"><span>Rocket Classic</span><span>Syd 323 · Der 206.5</span></div>
+      <div class="season-row" style="color:var(--muted);font-size:13px"><span>Wyndham</span><span>Syd 485 · Der 245.5</span></div>
+    </section>
+  </div>
+
+  <section>
+    <h2>Scoring cheat sheet</h2>
+    <div class="cap">Per hole: Double Eagle +20 · Eagle +8 · Birdie +3 · Par +0.5 · Bogey −0.5 · Double+ −1.
+      Bonuses: 3-birdie streak +3 · bogey-free round +3 · all 4 rounds under 70 +5 · hole-in-one +10.
+      Finish (final only): 1st 30 · 2nd 20 · 3rd 18 · 4th 16 · 5th 14 … down the board.</div>
+  </section>
+
+  <footer>Winner picks a prize up to $50. Just for fun 💛💚 · Round 1 · verified scorecards</footer>
+</div>
+
+<script>
+const PAR=[4,4,5,3,4,4,4,3,4,4,3,4,4,3,4,5,4,4];
+const PLAYERS=[
+ {n:"Hideki Matsuyama",t:"syd",tot:66,p:"−4",s:[4,5,5,4,4,4,4,2,4,5,3,3,4,2,3,4,3,3],bonus:"Birdie streak +3"},
+ {n:"Xander Schauffele",t:"syd",tot:67,p:"−3",s:[4,5,5,3,4,3,3,2,4,4,3,4,5,3,4,3,4,4],bonus:"Birdie streak +3"},
+ {n:"Viktor Hovland",t:"syd",tot:68,p:"−2",s:[3,3,4,3,4,4,4,2,5,4,2,4,4,3,6,5,4,4],bonus:"Birdie streak +3"},
+ {n:"Sam Burns",t:"syd",tot:67,p:"−3",s:[4,4,4,3,4,4,4,3,3,4,3,4,3,3,4,4,4,5],bonus:""},
+ {n:"Rory McIlroy",t:"syd",tot:74,p:"+4",s:[4,4,6,2,4,4,4,4,4,4,2,4,4,3,4,6,5,6],bonus:""},
+ {n:"Tommy Fleetwood",t:"der",tot:66,p:"−4",s:[3,4,3,2,4,4,4,3,4,4,3,4,5,3,4,4,4,4],bonus:""},
+ {n:"Si Woo Kim",t:"der",tot:70,p:"E",s:[4,4,4,3,5,4,4,2,4,4,5,4,4,3,5,3,4,4],bonus:""},
+ {n:"Scottie Scheffler",t:"der",tot:68,p:"−2",s:[4,4,4,3,4,4,4,3,4,4,2,4,4,3,5,4,4,4],bonus:""},
+ {n:"Jackson Koivun",t:"der",tot:71,p:"+1",s:[4,4,4,4,4,4,5,2,5,3,5,4,4,3,4,5,4,3],bonus:""},
+ {n:"Matt Fitzpatrick",t:"der",tot:70,p:"E",s:[4,3,4,3,4,4,3,3,4,4,3,5,4,3,4,5,4,6],bonus:""},
+];
+function cls(s,p){const d=s-p;if(d<=-2)return"s-eagle";if(d===-1)return"s-birdie";if(d===1)return"s-bogey";if(d>=2)return"s-dbl";return"";}
+function grid(pl){
+  const front=pl.s.slice(0,9),back=pl.s.slice(9);
+  const outP=PAR.slice(0,9).reduce((a,b)=>a+b),inP=PAR.slice(9).reduce((a,b)=>a+b);
+  const out=front.reduce((a,b)=>a+b),inn=back.reduce((a,b)=>a+b);
+  function row(label,arr,pars,sum,isScore){
+    let h=`<td class="lab">${label}</td>`;
+    arr.forEach((v,i)=>{h+=`<td class="${isScore?cls(v,pars[i]):''}">${v}</td>`;});
+    h+=`<td class="sum">${sum}</td>`;return h;
+  }
+  const holeNumsF=[1,2,3,4,5,6,7,8,9].map(x=>`<th>${x}</th>`).join('');
+  const holeNumsB=[10,11,12,13,14,15,16,17,18].map(x=>`<th>${x}</th>`).join('');
+  return `<div class="card-sc">
+    <div class="hd">
+      <div class="nm"><span class="pill ${pl.t}"></span>${pl.n}
+        ${pl.bonus?`<span class="chip">${pl.bonus}</span>`:''}</div>
+      <div class="rt"><b>${pl.tot}</b> (${pl.p})</div>
+    </div>
+    <table class="sc">
+      <tr><th class="lab">Hole</th>${holeNumsF}<th class="sum">Out</th></tr>
+      <tr><td class="lab">Par</td>${PAR.slice(0,9).map(v=>`<td>${v}</td>`).join('')}<td class="sum">${outP}</td></tr>
+      <tr>${row('Score',front,PAR.slice(0,9),out,true)}</tr>
+      <tr><th class="lab">Hole</th>${holeNumsB}<th class="sum">In</th></tr>
+      <tr><td class="lab">Par</td>${PAR.slice(9).map(v=>`<td>${v}</td>`).join('')}<td class="sum">${inP}</td></tr>
+      <tr>${row('Score',back,PAR.slice(9),inn,true)}</tr>
+    </table>
+  </div>`;
+}
+document.getElementById('cards').innerHTML=PLAYERS.map(grid).join('');
+</script>
+</body>
+</html>
