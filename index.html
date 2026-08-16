@@ -3,357 +3,399 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sydney vs Derrick — Fantasy Golf League</title>
+<title>Fantasy Golf League — Sydney vs Derrick</title>
 <style>
   :root{
-    --pink:#e87ba4; --pink-dark:#c85c85; --pink-soft:#fbe9f0;
-    --green:#008300; --green-dark:#006400; --green-soft:#e3f4e3;
-    --ink:#1e2530; --muted:#6b7280; --card:#ffffff; --bg:#f4f5f7; --line:#e6e8ec;
-    --eagle:#7b3fe4; --birdie:#c0392b; --bogey:#2563eb; --dbl:#1e3a8a;
+    --pink:#e87ba4; --pink-dk:#c85683; --pink-bg:#fdeef4;
+    --green:#008300; --green-dk:#006400; --green-bg:#e8f4e8;
+    --ink:#22262b; --muted:#6b7280; --line:#e5e7eb; --card:#ffffff; --bg:#f5f6f8;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg);color:var(--ink);line-height:1.5;padding:24px 14px 60px}
-  .wrap{max-width:980px;margin:0 auto}
-  header{text-align:center;margin-bottom:18px}
-  header .eyebrow{letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted);font-weight:700}
-  header h1{font-size:30px;margin:6px 0 4px}
-  header .sub{color:var(--muted);font-size:14px}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45;}
+  .wrap{max-width:960px;margin:0 auto;padding:18px 16px 60px;}
+  header.top{text-align:center;padding:10px 0 4px;}
+  header.top h1{margin:0;font-size:1.55rem;letter-spacing:.2px;}
+  header.top .sub{color:var(--muted);font-size:.92rem;margin-top:4px;}
+  .status-pill{display:inline-block;margin-top:10px;background:#111827;color:#fff;border-radius:999px;padding:6px 14px;font-size:.82rem;font-weight:600;}
+  .status-pill.live{background:#b91c1c;}
 
-  nav.tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:18px 0 22px}
-  nav.tabs button{font:inherit;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--line);
-    background:#fff;color:var(--ink);padding:9px 15px;border-radius:999px;transition:.15s;white-space:nowrap}
-  nav.tabs button:hover{border-color:var(--muted)}
-  nav.tabs button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-  nav.tabs button .w{font-size:11px;font-weight:700;margin-left:7px;padding:1px 7px;border-radius:999px}
-  nav.tabs button .w.syd{background:var(--pink-soft);color:var(--pink-dark)}
-  nav.tabs button .w.der{background:var(--green-soft);color:var(--green-dark)}
-  nav.tabs button.active .w.syd,nav.tabs button.active .w.der{background:rgba(255,255,255,.2);color:#fff}
+  /* Scoreboard */
+  .board{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch;margin:18px 0 8px;}
+  .team{border-radius:16px;padding:16px 14px;color:#fff;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .team.syd{background:linear-gradient(135deg,var(--pink),var(--pink-dk));}
+  .team.der{background:linear-gradient(135deg,var(--green),var(--green-dk));}
+  .team .who{font-size:1.05rem;font-weight:700;letter-spacing:.3px;}
+  .team .pts{font-size:2.5rem;font-weight:800;line-height:1;margin-top:6px;}
+  .team .lbl{font-size:.74rem;opacity:.9;text-transform:uppercase;letter-spacing:.6px;margin-top:4px;}
+  .vs{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-weight:700;}
+  .vs .lead{font-size:.7rem;text-align:center;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 6px;margin-top:6px;max-width:96px;}
+  .leader-syd{color:var(--pink-dk);} .leader-der{color:var(--green-dk);}
 
-  .view{display:none} .view.active{display:block}
+  /* Season strip */
+  .season-strip{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:6px 0 4px;font-size:.86rem;color:var(--muted);}
+  .season-strip b{color:var(--ink);}
 
-  .scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin:6px 0 22px}
-  .team{border-radius:18px;padding:20px;color:#fff;position:relative;overflow:hidden}
-  .team.syd{background:linear-gradient(135deg,var(--pink),var(--pink-dark))}
-  .team.der{background:linear-gradient(135deg,var(--green),var(--green-dark))}
-  .team .name{font-size:15px;font-weight:700;letter-spacing:.03em;opacity:.95}
-  .team .score{font-size:50px;font-weight:800;line-height:1;margin:8px 0 2px}
-  .team .label{font-size:12px;opacity:.9}
-  .team.lead::after{content:"▲ LEADING";position:absolute;top:14px;right:14px;font-size:11px;
-    font-weight:800;letter-spacing:.06em;background:rgba(255,255,255,.22);padding:4px 9px;border-radius:999px}
-  .team.win::after{content:"🏆 WON";position:absolute;top:14px;right:14px;font-size:11px;
-    font-weight:800;letter-spacing:.06em;background:rgba(255,255,255,.22);padding:4px 9px;border-radius:999px}
-  .vs{display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--muted);font-size:20px}
+  /* Tabs */
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:22px 0 14px;justify-content:center;}
+  .tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-size:.86rem;cursor:pointer;color:var(--ink);font-weight:600;transition:.15s;}
+  .tab:hover{border-color:#c7ccd3;}
+  .tab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .panel{display:none;animation:fade .2s ease;}
+  .panel.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
 
-  section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px}
-  section h2{font-size:17px;margin-bottom:4px}
-  .status{display:inline-block;margin-bottom:14px;background:#f7f8fa;border:1px solid var(--line);
-    border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600}
-  .status .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--green);margin-right:7px;vertical-align:middle}
-  section .cap{font-size:13px;color:var(--muted);margin-bottom:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 6px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .card h3{margin:2px 0 10px;font-size:1.02rem;display:flex;align-items:center;gap:8px;}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+  .dot.syd{background:var(--pink);} .dot.der{background:var(--green);}
+  .card h3 .rt{margin-left:auto;font-size:.95rem;font-weight:800;}
 
-  table.brk{width:100%;border-collapse:collapse;font-size:14px}
-  .brk th,.brk td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line)}
-  .brk th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
-  .brk td.num,.brk th.num{text-align:right;font-variant-numeric:tabular-nums}
-  .pill{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
-  .pill.syd{background:var(--pink)} .pill.der{background:var(--green)}
-  tr.total td{font-weight:800;border-top:2px solid var(--ink);border-bottom:none;background:#fafafa}
-  .syd-row{background:linear-gradient(90deg,var(--pink-soft),transparent 60%)}
-  .der-row{background:linear-gradient(90deg,var(--green-soft),transparent 60%)}
-  .bon{font-size:11px;color:var(--muted)}
-  .mc{color:var(--muted);font-style:italic}
+  table{width:100%;border-collapse:collapse;font-size:.86rem;}
+  th,td{padding:7px 6px;text-align:center;border-bottom:1px solid var(--line);}
+  th{font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;}
+  td.name{text-align:left;font-weight:600;white-space:nowrap;}
+  td.pts{font-weight:800;}
+  tr.tot td{border-top:2px solid #d1d5db;border-bottom:none;font-weight:800;background:#fafbfc;}
+  .neg{color:#b91c1c;} .pos{color:#15803d;}
+  .bonus{font-size:.72rem;color:var(--muted);}
+  .syd-row td.pts{color:var(--pink-dk);} .der-row td.pts{color:var(--green-dk);}
 
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  .mini h3{font-size:14px;margin-bottom:10px;display:flex;align-items:center}
-  .season-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
-  .season-row:last-child{border-bottom:none}
-  .season-row b{font-variant-numeric:tabular-nums}
-
-  .ebar{margin:14px 0}
-  .ebar .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;gap:10px;flex-wrap:wrap}
-  .ebar .top .ev{font-weight:700}
-  .ebar .top .sc{color:var(--muted);font-variant-numeric:tabular-nums}
-  .bar{display:flex;height:22px;border-radius:6px;overflow:hidden;background:#eee;font-size:11px;font-weight:700;color:#fff}
-  .bar .s{background:var(--pink);display:flex;align-items:center;padding:0 7px}
-  .bar .d{background:var(--green);display:flex;align-items:center;justify-content:flex-end;padding:0 7px}
-  .clink{cursor:pointer;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
-  .clink:hover{text-decoration-color:var(--muted)}
-
-  .card-sc{border:1px solid var(--line);border-radius:12px;padding:12px 12px 14px;margin-bottom:14px}
-  .card-sc .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px}
-  .card-sc .hd .nm{font-weight:700;font-size:15px;display:flex;align-items:center}
-  .card-sc .hd .rt{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-  .card-sc .hd .rt b{color:var(--ink)}
-  .sc{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
-  .sc td,.sc th{border:1px solid var(--line);text-align:center;padding:4px 0;width:5%}
-  .sc th{background:#fafafa;color:var(--muted);font-weight:700;font-size:11px}
-  .sc .lab{width:8%;text-align:left;padding-left:6px;color:var(--muted);font-weight:700;font-size:11px;background:#fafafa}
-  .sc .sum{background:#f2f3f5;font-weight:700}
-  .s-eagle{color:#fff;background:var(--eagle);border-radius:50%;font-weight:800}
-  .s-birdie{color:#fff;background:var(--birdie);border-radius:50%;font-weight:800}
-  .s-bogey{color:#fff;background:var(--bogey);font-weight:700}
-  .s-dbl{color:#fff;background:var(--dbl);font-weight:700}
-  .chip{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:999px;background:#fff3cd;color:#8a6d00;border:1px solid #f0e2b8;margin-left:6px}
-  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:14px}
-  .legend span{display:flex;align-items:center;gap:5px}
-  .dotk{width:12px;height:12px;border-radius:50%;display:inline-block}
-  .note{font-size:12.5px;border-radius:10px;padding:10px 14px;margin-top:10px}
-  .note.v{color:var(--green-dark);background:var(--green-soft);border:1px solid #bfe3bf}
-  .note.champ{color:#8a6d00;background:#fff8e6;border:1px solid #f0e2b8}
-  .note.info{color:var(--muted);background:#f7f8fa;border:1px solid var(--line)}
-  details.rules summary{cursor:pointer;font-weight:700;font-size:14px}
-  details.rules .cap{margin-top:10px}
-  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
-  @media(max-width:640px){
-    .scoreboard{grid-template-columns:1fr}.vs{display:none}
-    .two{grid-template-columns:1fr}.team .score{font-size:42px}
-    .sc{font-size:11px}
+  .note{font-size:.8rem;color:var(--muted);background:#fffdf5;border:1px solid #f1e7c4;border-radius:10px;padding:10px 12px;margin:6px 0 16px;}
+  .lead-tbl td.name{white-space:nowrap;}
+  .badge{display:inline-block;font-size:.66rem;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:6px;vertical-align:middle;}
+  .badge.syd{background:var(--pink-bg);color:var(--pink-dk);}
+  .badge.der{background:var(--green-bg);color:var(--green-dk);}
+  footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:24px;}
+  .rules details{font-size:.83rem;color:#374151;}
+  .rules summary{cursor:pointer;font-weight:700;color:var(--ink);}
+  .rules li{margin:3px 0;}
+  @media(max-width:560px){
+    .team .pts{font-size:2rem;}
+    header.top h1{font-size:1.25rem;}
+    th,td{padding:6px 3px;font-size:.8rem;}
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="eyebrow">Sydney &nbsp;vs&nbsp; Derrick · Fantasy Golf League</div>
-    <h1>League HQ</h1>
-    <div class="sub">Casual 2-person fantasy golf · fresh 5-player draft each event · winner picks a prize up to $50 💛💚</div>
+  <header class="top">
+    <h1>⛳ Fantasy Golf League</h1>
+    <div class="sub">Sydney <span style="color:var(--pink-dk);font-weight:700;">♥</span> vs Derrick <span style="color:var(--green-dk);font-weight:700;">♣</span> &nbsp;·&nbsp; FedEx St. Jude Championship 2026</div>
+    <div class="sub">TPC Southwind, Memphis · Par 70 · No-cut FedExCup Playoff (69 players)</div>
+    <div id="statusPill" class="status-pill live">🔴 Round 3 of 4 complete · Final round Sun Aug 16</div>
   </header>
-  <nav class="tabs" id="tabs"></nav>
-  <div id="views"></div>
-  <footer>Click any tournament above to see its details · Just for fun</footer>
+
+  <!-- EVENT SCOREBOARD -->
+  <div class="board">
+    <div class="team syd">
+      <div class="who">Sydney ♥</div>
+      <div class="pts" id="sydEvent">272.0</div>
+      <div class="lbl">St. Jude pts (thru R3)</div>
+    </div>
+    <div class="vs">
+      <div>vs</div>
+      <div class="lead" id="leadNote"></div>
+    </div>
+    <div class="team der">
+      <div class="who">Derrick ♣</div>
+      <div class="pts" id="derEvent">288.5</div>
+      <div class="lbl">St. Jude pts (thru R3)</div>
+    </div>
+  </div>
+
+  <div class="season-strip">
+    <span>Season standings (pre-event): <b>Sydney 1127.0</b> · <b>Derrick 886.5</b></span>
+    <span>·</span>
+    <span>Events won: <b>Sydney 2</b> — <b>Derrick 1</b></span>
+  </div>
+  <div class="season-strip">
+    <span>Live projection incl. R1–R3 pts (event not final): <b class="leader-syd">Sydney 1399.0</b> · <b class="leader-der">Derrick 1175.0</b></span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" data-tab="r3">Round 3</button>
+    <button class="tab" data-tab="r2">Round 2</button>
+    <button class="tab" data-tab="r1">Round 1</button>
+    <button class="tab" data-tab="event">Event Totals</button>
+    <button class="tab" data-tab="lead">Leaderboard</button>
+    <button class="tab" data-tab="prior">Prior Events</button>
+    <button class="tab" data-tab="rules">Scoring Rules</button>
+  </div>
+
+  <!-- ROUND 3 -->
+  <div class="panel active" id="tab-r3">
+    <div class="note">
+      <b>Round 3 result: Derrick 98.0 — Sydney 91.5 (Derrick +6.5 on Moving Day).</b>
+      Sam Burns lit up Southwind with a bogey-free 8-under 62 (35.0 pts, the day's biggest haul), but Derrick's roster went deep top-to-bottom — Si Woo Kim's 65 and Koivun's 66 led the way.
+    </div>
+    <div class="note" style="background:#f3f6ff;border-color:#cdd9f1;">
+      ⚠️ <b>Estimate note:</b> Round 3 per-hole scorecards weren't cleanly available at update time, so points are estimated from each player's round-to-par using a standard birdie/bogey profile — same method as Round 2. Scheffler (4 birdies, 2 bogeys) and Burns (8 birdies, bogey-free) use their reported hole stats. Streak / bogey-free bonuses applied only where a round clearly implies them. Round 1 remains verified hole-by-hole.
+    </div>
+    <div class="card">
+      <h3><span class="dot syd"></span> Sydney — Round 3 <span class="rt leader-syd">91.5</span></h3>
+      <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R3</th><th>To Par</th><th>Notes</th><th>Pts</th></tr></thead>
+      <tbody id="r3syd"></tbody></table>
+    </div>
+    <div class="card">
+      <h3><span class="dot der"></span> Derrick — Round 3 <span class="rt leader-der">98.0</span></h3>
+      <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R3</th><th>To Par</th><th>Notes</th><th>Pts</th></tr></thead>
+      <tbody id="r3der"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ROUND 2 -->
+  <div class="panel" id="tab-r2">
+    <div class="note">Round 2 result: <b>Derrick 105.5 — Sydney 80.5</b>, powered by Scheffler's 9-under 61 (38.5 pts). Points estimated from round-to-par (per-hole scorecards not available).</div>
+    <div class="card">
+      <h3><span class="dot syd"></span> Sydney — Round 2 <span class="rt leader-syd">80.5</span></h3>
+      <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R2</th><th>To Par</th><th>Pts</th></tr></thead>
+      <tbody id="r2syd"></tbody></table>
+    </div>
+    <div class="card">
+      <h3><span class="dot der"></span> Derrick — Round 2 <span class="rt leader-der">105.5</span></h3>
+      <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R2</th><th>To Par</th><th>Pts</th></tr></thead>
+      <tbody id="r2der"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ROUND 1 -->
+  <div class="panel" id="tab-r1">
+    <div class="note">Round 1 result: <b>Sydney 100.0 — Derrick 85.0</b>. ✅ Verified hole-by-hole from official PGA TOUR scorecards.</div>
+    <div class="card">
+      <h3><span class="dot syd"></span> Sydney — Round 1 <span class="rt leader-syd">100.0</span></h3>
+      <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R1</th><th>To Par</th><th>Eag</th><th>Bir</th><th>Bog</th><th>Dbl+</th><th>Bonus</th><th>Pts</th></tr></thead>
+      <tbody id="r1syd"></tbody></table>
+    </div>
+    <div class="card">
+      <h3><span class="dot der"></span> Derrick — Round 1 <span class="rt leader-der">85.0</span></h3>
+      <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R1</th><th>To Par</th><th>Eag</th><th>Bir</th><th>Bog</th><th>Dbl+</th><th>Bonus</th><th>Pts</th></tr></thead>
+      <tbody id="r1der"></tbody></table>
+    </div>
+  </div>
+
+  <!-- EVENT TOTALS -->
+  <div class="panel" id="tab-event">
+    <div class="note">Cumulative St. Jude fantasy points through 54 holes. Finish-position points and the event winner are added only after Round 4 is final.</div>
+    <div class="card">
+      <h3><span class="dot syd"></span> Sydney — Event totals <span class="rt leader-syd">272.0</span></h3>
+      <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R1</th><th>R2</th><th>R3</th><th>Total</th></tr></thead>
+      <tbody id="evsyd"></tbody></table>
+    </div>
+    <div class="card">
+      <h3><span class="dot der"></span> Derrick — Event totals <span class="rt leader-der">288.5</span></h3>
+      <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R1</th><th>R2</th><th>R3</th><th>Total</th></tr></thead>
+      <tbody id="evder"></tbody></table>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="panel" id="tab-lead">
+    <div class="note">Tournament leaderboard through 54 holes (all 10 rostered players). Positions are approximate pending the official final-round board; finish-position fantasy points are awarded after Round 4.</div>
+    <div class="card">
+      <h3>🏆 Rostered players — thru R3</h3>
+      <table class="lead-tbl"><thead><tr><th>Pos</th><th class="name" style="text-align:left">Player</th><th>Team</th><th>R1</th><th>R2</th><th>R3</th><th>To Par</th></tr></thead>
+      <tbody id="leadBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- PRIOR EVENTS -->
+  <div class="panel" id="tab-prior">
+    <div class="note">Fresh 5-player draft each event, so rosters change weekly. Missed-cut penalty (−5) applied to events with a cut; playoff events are no-cut.</div>
+    <div class="card"><h3>3M Open — Jul 23–26 · <span style="color:var(--green-dk)">Derrick won 434.5–319</span></h3>
+      <p style="font-size:.85rem;margin:0 0 8px;color:var(--muted)">Champion: <b>Jackson Koivun</b> (Derrick's pick, 1st).</p>
+      <table><thead><tr><th class="name" style="text-align:left">Sydney (319)</th><th>Pts</th><th class="name" style="text-align:left">Derrick (434.5)</th><th>Pts</th></tr></thead><tbody id="p3m"></tbody></table>
+    </div>
+    <div class="card"><h3>Rocket Classic — Jul 30–Aug 2 · <span style="color:var(--pink-dk)">Sydney won 323–206.5</span></h3>
+      <p style="font-size:.85rem;margin:0 0 8px;color:var(--muted)">Top drafted finish: Xander Schauffele (2nd).</p>
+      <table><thead><tr><th class="name" style="text-align:left">Sydney (323)</th><th>Pts</th><th class="name" style="text-align:left">Derrick (206.5)</th><th>Pts</th></tr></thead><tbody id="prc"></tbody></table>
+    </div>
+    <div class="card"><h3>Wyndham Championship — Aug 6–9 · <span style="color:var(--pink-dk)">Sydney won 485–245.5</span></h3>
+      <p style="font-size:.85rem;margin:0 0 8px;color:var(--muted)">Champion: <b>Michael Brennan</b> (Sydney's pick, 1st).</p>
+      <table><thead><tr><th class="name" style="text-align:left">Sydney (485)</th><th>Pts</th><th class="name" style="text-align:left">Derrick (245.5)</th><th>Pts</th></tr></thead><tbody id="pwy"></tbody></table>
+    </div>
+  </div>
+
+  <!-- RULES -->
+  <div class="panel rules" id="tab-rules">
+    <div class="card">
+      <h3>📋 Scoring rules</h3>
+      <details open><summary>Per-hole points</summary>
+      <ul>
+        <li>Double Eagle <b>+20</b> · Eagle <b>+8</b> · Birdie <b>+3</b> · Par <b>+0.5</b> · Bogey <b>−0.5</b> · Double bogey or worse <b>−1</b></li>
+      </ul></details>
+      <details open><summary>Bonuses</summary>
+      <ul>
+        <li>3-birdie-or-better streak in a round (max 1/round) <b>+3</b></li>
+        <li>Bogey-free round <b>+3</b></li>
+        <li>All 4 rounds under 70 strokes <b>+5</b></li>
+        <li>Hole-in-one <b>+10</b></li>
+      </ul></details>
+      <details><summary>Finish position (final only, after R4)</summary>
+      <ul>
+        <li>1st 30 · 2nd 20 · 3rd 18 · 4th 16 · 5th 14 · 6th 12 · 7th 10 · 8th 9 · 9th 8 · 10th 7</li>
+        <li>11–15 = 6 · 16–20 = 5 · 21–25 = 4 · 26–30 = 3 · 31–40 = 2 · 41–50 = 1 · 51+ = 0</li>
+        <li>No missed-cut penalty (this event has no cut).</li>
+      </ul></details>
+      <p style="font-size:.82rem;color:var(--muted)">Winner of each event picks any prize up to $50 value. 🎁</p>
+    </div>
+  </div>
+
+  <footer>
+    Live dashboard · Updated after Round 3 (Sat Aug 15, 2026) · Next update after the final round.<br>
+    Sydney ♥ pink &nbsp;·&nbsp; Derrick ♣ green &nbsp;·&nbsp; Just for fun 💛
+  </footer>
 </div>
 
 <script>
-/* ============ DATA ============ */
-const PAR=[4,4,5,3,4,4,4,3,4,4,3,4,4,3,4,5,4,4];
-const SEASON={ syd:1127.0, der:886.5, wonSyd:2, wonDer:1 }; // before FedEx St. Jude
+const money = n => (n%1===0? n.toFixed(1): n.toFixed(1));
+function topar(n){ if(n===0) return {t:'E',c:''}; if(n<0) return {t:n,c:'pos'}; return {t:'+'+n,c:'neg'}; }
 
-const EVENTS=[
-  { id:"3m", name:"3M Open", meta:"TPC Twin Cities, Blaine MN · Jul 23–26, 2026 · with 36-hole cut",
-    syd:319, der:434.5, winner:"der", status:"final", mode:"rounds",
-    champ:{n:"Jackson Koivun",t:"der"},
-    players:[
-      {n:"Scottie Scheffler",t:"syd",pos:"2",eag:1,bir:25,bog:3,dbl:1,bonus:"2× streak, 2× bogey-free, all-4 <70",pts:133.5},
-      {n:"Hideki Matsuyama",t:"syd",pos:"3",eag:1,bir:23,bog:3,dbl:1,bonus:"2× streak, 2× bogey-free",pts:126.5},
-      {n:"Tony Finau",t:"syd",pos:"MC",eag:0,bir:5,bog:4,dbl:1,bonus:"1× streak",pts:23},
-      {n:"Steven Fisk",t:"syd",pos:"MC",eag:0,bir:4,bog:3,dbl:0,bonus:"",pts:20},
-      {n:"Max Homa",t:"syd",pos:"MC",eag:0,bir:4,bog:4,dbl:2,bonus:"",pts:16},
-      {n:"Jackson Koivun",t:"der",pos:"1",eag:2,bir:24,bog:3,dbl:0,bonus:"1× streak, 3× bogey-free, HIO",pts:155},
-      {n:"Brian Harman",t:"der",pos:"3",eag:0,bir:22,bog:2,dbl:0,bonus:"3× bogey-free, all-4 <70, HIO",pts:121},
-      {n:"Gary Woodland",t:"der",pos:"10",eag:0,bir:24,bog:2,dbl:2,bonus:"1× streak, 1× bogey-free, all-4 <70",pts:104},
-      {n:"Aldrich Potgieter",t:"der",pos:"MC",eag:1,bir:7,bog:5,dbl:2,bonus:"1× streak",pts:33},
-      {n:"Sungjae Im",t:"der",pos:"MC",eag:0,bir:5,bog:4,dbl:0,bonus:"",pts:21.5},
-    ]},
-  { id:"rocket", name:"Rocket Classic", meta:"Detroit Golf Club · Jul 30–Aug 2, 2026 · with 36-hole cut",
-    syd:323, der:206.5, winner:"syd", status:"final", mode:"rounds",
-    champ:null,
-    players:[
-      {n:"Xander Schauffele",t:"syd",pos:"2",eag:0,bir:20,bog:4,dbl:0,bonus:"1× streak, all-4 <70, HIO",pts:110},
-      {n:"Hideki Matsuyama",t:"syd",pos:"5",eag:0,bir:18,bog:5,dbl:0,bonus:"1× bogey-free",pts:93},
-      {n:"Jackson Koivun",t:"syd",pos:"31",eag:0,bir:17,bog:9,dbl:0,bonus:"all-4 <70, HIO",pts:76.5},
-      {n:"Billy Horschel",t:"syd",pos:"MC",eag:0,bir:9,bog:8,dbl:0,bonus:"",pts:27.5},
-      {n:"Wyndham Clark",t:"syd",pos:"MC",eag:0,bir:5,bog:8,dbl:1,bonus:"",pts:16},
-      {n:"Cameron Young",t:"der",pos:"8",eag:0,bir:16,bog:4,dbl:0,bonus:"1× streak, 1× bogey-free",pts:87},
-      {n:"J.J. Spaun",t:"der",pos:"50",eag:1,bir:14,bog:10,dbl:1,bonus:"",pts:68},
-      {n:"Aldrich Potgieter",t:"der",pos:"MC",eag:0,bir:7,bog:3,dbl:3,bonus:"",pts:23},
-      {n:"Chris Gotterup",t:"der",pos:"MC",eag:0,bir:5,bog:6,dbl:0,bonus:"1× streak",pts:22.5},
-      {n:"Brad Dalke",t:"der",pos:"MC",eag:0,bir:4,bog:11,dbl:4,bonus:"",pts:6},
-    ]},
-  { id:"wyndham", name:"Wyndham Championship", meta:"Sedgefield CC, Greensboro NC · Aug 6–9, 2026 · with 36-hole cut",
-    syd:485, der:245.5, winner:"syd", status:"final", mode:"rounds",
-    champ:{n:"Michael Brennan",t:"syd"},
-    players:[
-      {n:"Michael Brennan",t:"syd",pos:"1",eag:1,bir:25,bog:3,dbl:1,bonus:"2× streak, all-4 <70, HIO",pts:142.5},
-      {n:"Hideki Matsuyama",t:"syd",pos:"7",eag:2,bir:21,bog:9,dbl:1,bonus:"1× streak, all-4 <70, HIO",pts:111},
-      {n:"Justin Thomas",t:"syd",pos:"14",eag:1,bir:17,bog:7,dbl:0,bonus:"1× streak, 1× bogey-free, all-4 <70",pts:91},
-      {n:"Jackson Koivun",t:"syd",pos:"29",eag:0,bir:14,bog:4,dbl:1,bonus:"1× bogey-free",pts:71.5},
-      {n:"Cameron Young",t:"syd",pos:"61",eag:0,bir:17,bog:11,dbl:1,bonus:"1× streak",pts:69},
-      {n:"Tom Kim",t:"der",pos:"5",eag:0,bir:22,bog:3,dbl:2,bonus:"1× streak, 1× bogey-free",pts:105},
-      {n:"Keegan Bradley",t:"der",pos:"49",eag:1,bir:18,bog:10,dbl:2,bonus:"",pts:76.5},
-      {n:"Ben Griffin",t:"der",pos:"MC",eag:0,bir:6,bog:4,dbl:0,bonus:"",pts:24},
-      {n:"J.T. Poston",t:"der",pos:"MC",eag:0,bir:5,bog:4,dbl:0,bonus:"",pts:21.5},
-      {n:"Blades Brown",t:"der",pos:"MC",eag:0,bir:6,bog:8,dbl:1,bonus:"",pts:18.5},
-    ]},
-  { id:"stjude", name:"FedEx St. Jude Championship", meta:"TPC Southwind, Memphis · Aug 13–16, 2026 · Par 70 · no-cut Playoff event",
-    syd:100.0, der:85.0, winner:null, status:"Round 1 of 4 complete — verified scorecards", mode:"holes",
-    players:[
-      {n:"Hideki Matsuyama",t:"syd",tot:66,p:"−4",eag:0,bir:7,bog:3,dbl:0,bonus:"Birdie streak +3",pts:26.5,s:[4,5,5,4,4,4,4,2,4,5,3,3,4,2,3,4,3,3]},
-      {n:"Xander Schauffele",t:"syd",tot:67,p:"−3",eag:1,bir:3,bog:2,dbl:0,bonus:"Birdie streak +3",pts:25.0,s:[4,5,5,3,4,3,3,2,4,4,3,4,5,3,4,3,4,4]},
-      {n:"Viktor Hovland",t:"syd",tot:68,p:"−2",eag:0,bir:5,bog:1,dbl:1,bonus:"Birdie streak +3",pts:22.0,s:[3,3,4,3,4,4,4,2,5,4,2,4,4,3,6,5,4,4]},
-      {n:"Sam Burns",t:"syd",tot:67,p:"−3",eag:0,bir:4,bog:1,dbl:0,bonus:"",pts:18.0,s:[4,4,4,3,4,4,4,3,3,4,3,4,3,3,4,4,4,5]},
-      {n:"Rory McIlroy",t:"syd",tot:74,p:"+4",eag:0,bir:2,bog:4,dbl:1,bonus:"",pts:8.5,s:[4,4,6,2,4,4,4,4,4,4,2,4,4,3,4,6,5,6]},
-      {n:"Tommy Fleetwood",t:"der",tot:66,p:"−4",eag:1,bir:3,bog:1,dbl:0,bonus:"",pts:23.0,s:[3,4,3,2,4,4,4,3,4,4,3,4,5,3,4,4,4,4]},
-      {n:"Si Woo Kim",t:"der",tot:70,p:"E",eag:1,bir:2,bog:2,dbl:1,bonus:"",pts:18.0,s:[4,4,4,3,5,4,4,2,4,4,5,4,4,3,5,3,4,4]},
-      {n:"Scottie Scheffler",t:"der",tot:68,p:"−2",eag:0,bir:3,bog:1,dbl:0,bonus:"",pts:15.5,s:[4,4,4,3,4,4,4,3,4,4,2,4,4,3,5,4,4,4]},
-      {n:"Jackson Koivun",t:"der",tot:71,p:"+1",eag:0,bir:4,bog:3,dbl:1,bonus:"",pts:14.5,s:[4,4,4,4,4,4,5,2,5,3,5,4,4,3,4,5,4,3]},
-      {n:"Matt Fitzpatrick",t:"der",tot:70,p:"E",eag:0,bir:3,bog:1,dbl:1,bonus:"",pts:14.0,s:[4,3,4,3,4,4,3,3,4,4,3,5,4,3,4,5,4,6]},
-    ]},
+/* ---------- DATA ---------- */
+// Round 3 (estimated except Scheffler/Burns hole stats)
+const r3 = {
+  syd:[
+    {n:'Sam Burns',sc:62,tp:-8,note:'8 birdies · bogey-free +3 · streak +3',p:35.0},
+    {n:'Hideki Matsuyama',sc:67,tp:-3,note:'~5 bir / 2 bog (est.)',p:19.5},
+    {n:'Xander Schauffele',sc:68,tp:-2,note:'~4 bir / 2 bog (est.)',p:17.0},
+    {n:'Viktor Hovland',sc:72,tp:2,note:'~2 bir / 4 bog (est.)',p:10.0},
+    {n:'Rory McIlroy',sc:72,tp:2,note:'~2 bir / 4 bog (est.)',p:10.0},
+  ],
+  der:[
+    {n:'Si Woo Kim',sc:65,tp:-5,note:'~7 bir / 2 bog · streak +3 (est.)',p:27.5},
+    {n:'Jackson Koivun',sc:66,tp:-4,note:'~6 bir / 2 bog (est.)',p:22.0},
+    {n:'Scottie Scheffler',sc:68,tp:-2,note:'4 birdies / 2 bogeys',p:17.0},
+    {n:'Tommy Fleetwood',sc:68,tp:-2,note:'~4 bir / 2 bog (est.)',p:17.0},
+    {n:'Matt Fitzpatrick',sc:69,tp:-1,note:'~3 bir / 2 bog (est.)',p:14.5},
+  ]
+};
+// Round 2 (estimated)
+const r2 = {
+  syd:[
+    {n:'Viktor Hovland',sc:64,tp:-6,p:28.5},
+    {n:'Rory McIlroy',sc:70,tp:0,p:15.0},
+    {n:'Hideki Matsuyama',sc:70,tp:0,p:13.5},
+    {n:'Sam Burns',sc:70,tp:0,p:13.5},
+    {n:'Xander Schauffele',sc:72,tp:2,p:10.0},
+  ],
+  der:[
+    {n:'Scottie Scheffler',sc:61,tp:-9,p:38.5},
+    {n:'Matt Fitzpatrick',sc:67,tp:-3,p:19.5},
+    {n:'Tommy Fleetwood',sc:68,tp:-2,p:17.0},
+    {n:'Si Woo Kim',sc:68,tp:-2,p:17.0},
+    {n:'Jackson Koivun',sc:70,tp:0,p:13.5},
+  ]
+};
+// Round 1 (verified)
+const r1 = {
+  syd:[
+    {n:'Hideki Matsuyama',sc:66,tp:-4,e:0,b:7,bo:3,d:0,bon:'Streak +3',p:26.5},
+    {n:'Xander Schauffele',sc:67,tp:-3,e:1,b:3,bo:2,d:0,bon:'Streak +3',p:25.0},
+    {n:'Viktor Hovland',sc:68,tp:-2,e:0,b:5,bo:1,d:1,bon:'Streak +3',p:22.0},
+    {n:'Sam Burns',sc:67,tp:-3,e:0,b:4,bo:1,d:0,bon:'—',p:18.0},
+    {n:'Rory McIlroy',sc:74,tp:4,e:0,b:2,bo:4,d:1,bon:'—',p:8.5},
+  ],
+  der:[
+    {n:'Tommy Fleetwood',sc:66,tp:-4,e:1,b:3,bo:1,d:0,bon:'—',p:23.0},
+    {n:'Si Woo Kim',sc:70,tp:0,e:1,b:2,bo:2,d:1,bon:'—',p:18.0},
+    {n:'Scottie Scheffler',sc:68,tp:-2,e:0,b:3,bo:1,d:0,bon:'—',p:15.5},
+    {n:'Jackson Koivun',sc:71,tp:1,e:0,b:4,bo:3,d:1,bon:'—',p:14.5},
+    {n:'Matt Fitzpatrick',sc:70,tp:0,e:0,b:3,bo:1,d:1,bon:'—',p:14.0},
+  ]
+};
+// Event totals thru R3
+const ev = {
+  syd:[
+    {n:'Sam Burns',r1:18.0,r2:13.5,r3:35.0},
+    {n:'Viktor Hovland',r1:22.0,r2:28.5,r3:10.0},
+    {n:'Hideki Matsuyama',r1:26.5,r2:13.5,r3:19.5},
+    {n:'Xander Schauffele',r1:25.0,r2:10.0,r3:17.0},
+    {n:'Rory McIlroy',r1:8.5,r2:15.0,r3:10.0},
+  ],
+  der:[
+    {n:'Scottie Scheffler',r1:15.5,r2:38.5,r3:17.0},
+    {n:'Si Woo Kim',r1:18.0,r2:17.0,r3:27.5},
+    {n:'Tommy Fleetwood',r1:23.0,r2:17.0,r3:17.0},
+    {n:'Jackson Koivun',r1:14.5,r2:13.5,r3:22.0},
+    {n:'Matt Fitzpatrick',r1:14.0,r2:19.5,r3:14.5},
+  ]
+};
+// Leaderboard thru R3
+const lead = [
+  {pos:'1',n:'Scottie Scheffler',tm:'der',r1:68,r2:61,r3:68,tp:-13},
+  {pos:'T2',n:'Sam Burns',tm:'syd',r1:67,r2:70,r3:62,tp:-11},
+  {pos:'T4',n:'Tommy Fleetwood',tm:'der',r1:66,r2:68,r3:68,tp:-8},
+  {pos:'T6',n:'Hideki Matsuyama',tm:'syd',r1:66,r2:70,r3:67,tp:-7},
+  {pos:'T6',n:'Si Woo Kim',tm:'der',r1:70,r2:68,r3:65,tp:-7},
+  {pos:'T11',n:'Viktor Hovland',tm:'syd',r1:68,r2:64,r3:72,tp:-6},
+  {pos:'T18',n:'Matt Fitzpatrick',tm:'der',r1:70,r2:67,r3:69,tp:-4},
+  {pos:'T22',n:'Xander Schauffele',tm:'syd',r1:67,r2:72,r3:68,tp:-3},
+  {pos:'T22',n:'Jackson Koivun',tm:'der',r1:71,r2:70,r3:66,tp:-3},
+  {pos:'T60',n:'Rory McIlroy',tm:'syd',r1:74,r2:70,r3:72,tp:6},
 ];
+// Prior events
+const prior = {
+  p3m:[['Scottie Scheffler (2nd)',133.5,'Jackson Koivun (1st) 🏆',155],['Hideki Matsuyama (3rd)',126.5,'Brian Harman (3rd)',121],['Tony Finau (MC)',23,'Gary Woodland (10th)',104],['Steven Fisk (MC)',20,'Aldrich Potgieter (MC)',33],['Max Homa (MC)',16,'Sungjae Im (MC)',21.5]],
+  prc:[['Xander Schauffele (2nd)',110,'Cameron Young (8th)',87],['Hideki Matsuyama (5th)',93,'J.J. Spaun (50th)',68],['Jackson Koivun (31st)',76.5,'Aldrich Potgieter (MC)',23],['Billy Horschel (MC)',27.5,'Chris Gotterup (MC)',22.5],['Wyndham Clark (MC)',16,'Brad Dalke (MC)',6]],
+  pwy:[['Michael Brennan (1st) 🏆',142.5,'Tom Kim (5th)',105],['Hideki Matsuyama (7th)',111,'Keegan Bradley (49th)',76.5],['Justin Thomas (14th)',91,'Ben Griffin (MC)',24],['Jackson Koivun (29th)',71.5,'J.T. Poston (MC)',21.5],['Cameron Young (61st)',69,'Blades Brown (MC)',18.5]],
+};
 
-/* ============ HELPERS ============ */
-function fmt(n){return Number.isInteger(n)?n+".0":String(n);}
-function cls(s,p){const d=s-p;if(d<=-2)return"s-eagle";if(d===-1)return"s-birdie";if(d===1)return"s-bogey";if(d>=2)return"s-dbl";return"";}
-function scoreboard(e){
-  const sLead=e.syd>e.der, dLead=e.der>e.syd;
-  const sCls=e.status==="final"?(e.winner==="syd"?"win":""):(sLead?"lead":"");
-  const dCls=e.status==="final"?(e.winner==="der"?"win":""):(dLead?"lead":"");
-  const lbl=e.status==="final"?"final points":"event points";
-  return `<div class="scoreboard">
-    <div class="team syd ${sCls}"><div class="name">SYDNEY</div><div class="score">${fmt(e.syd)}</div><div class="label">${lbl}</div></div>
-    <div class="vs">vs</div>
-    <div class="team der ${dCls}"><div class="name">DERRICK</div><div class="score">${fmt(e.der)}</div><div class="label">${lbl}</div></div>
-  </div>`;
-}
-function grid(pl){
-  const front=pl.s.slice(0,9),back=pl.s.slice(9);
-  const outP=PAR.slice(0,9).reduce((a,b)=>a+b),inP=PAR.slice(9).reduce((a,b)=>a+b);
-  const out=front.reduce((a,b)=>a+b),inn=back.reduce((a,b)=>a+b);
-  const numsF=[1,2,3,4,5,6,7,8,9].map(x=>`<th>${x}</th>`).join('');
-  const numsB=[10,11,12,13,14,15,16,17,18].map(x=>`<th>${x}</th>`).join('');
-  const row=(arr,pars)=>arr.map((v,i)=>`<td class="${cls(v,pars[i])}">${v}</td>`).join('');
-  return `<div class="card-sc">
-    <div class="hd"><div class="nm"><span class="pill ${pl.t}"></span>${pl.n}${pl.bonus?`<span class="chip">${pl.bonus}</span>`:''}</div>
-      <div class="rt"><b>${pl.tot}</b> (${pl.p})</div></div>
-    <table class="sc">
-      <tr><th class="lab">Hole</th>${numsF}<th class="sum">Out</th></tr>
-      <tr><td class="lab">Par</td>${PAR.slice(0,9).map(v=>`<td>${v}</td>`).join('')}<td class="sum">${outP}</td></tr>
-      <tr><td class="lab">Score</td>${row(front,PAR.slice(0,9))}<td class="sum">${out}</td></tr>
-      <tr><th class="lab">Hole</th>${numsB}<th class="sum">In</th></tr>
-      <tr><td class="lab">Par</td>${PAR.slice(9).map(v=>`<td>${v}</td>`).join('')}<td class="sum">${inP}</td></tr>
-      <tr><td class="lab">Score</td>${row(back,PAR.slice(9))}<td class="sum">${inn}</td></tr>
-    </table></div>`;
-}
-function posCell(p){return p==="MC"?`<span class="mc">MC</span>`:p;}
-function holesBrk(e){
-  const rows=t=>e.players.filter(p=>p.t===t).sort((a,b)=>b.pts-a.pts).map(p=>
-    `<tr class="${t}-row"><td>${p.n}</td><td><span class="pill ${t}"></span>${t==="syd"?"Syd":"Der"}</td>
-     <td class="num">${p.tot}</td><td class="num">${p.p}</td><td class="num">${p.eag}</td><td class="num">${p.bir}</td>
-     <td class="num">${p.bog}</td><td class="num">${p.dbl}</td><td class="bon">${p.bonus||"—"}</td><td class="num">${fmt(p.pts)}</td></tr>`).join('');
-  return `<table class="brk"><thead><tr><th>Player</th><th>Team</th><th class="num">R1</th><th class="num">Par</th>
-    <th class="num">Eag</th><th class="num">Bir</th><th class="num">Bog</th><th class="num">Dbl</th><th>Bonus</th><th class="num">Points</th></tr></thead>
-    <tbody>${rows("syd")}<tr class="total"><td colspan="9">SYDNEY — event total</td><td class="num">${fmt(e.syd)}</td></tr>
-    ${rows("der")}<tr class="total"><td colspan="9">DERRICK — event total</td><td class="num">${fmt(e.der)}</td></tr></tbody></table>`;
-}
-function roundsBrk(e){
-  const rows=t=>e.players.filter(p=>p.t===t).sort((a,b)=>b.pts-a.pts).map(p=>
-    `<tr class="${t}-row"><td>${p.n}</td><td><span class="pill ${t}"></span>${t==="syd"?"Syd":"Der"}</td>
-     <td class="num">${posCell(p.pos)}</td><td class="num">${p.eag}</td><td class="num">${p.bir}</td>
-     <td class="num">${p.bog}</td><td class="num">${p.dbl}</td><td class="bon">${p.bonus||"—"}</td><td class="num">${fmt(p.pts)}</td></tr>`).join('');
-  return `<table class="brk"><thead><tr><th>Player</th><th>Team</th><th class="num">Finish</th>
-    <th class="num">Eag+</th><th class="num">Bir</th><th class="num">Bog</th><th class="num">Dbl+</th><th>Bonuses</th><th class="num">Points</th></tr></thead>
-    <tbody>${rows("syd")}<tr class="total"><td colspan="8">SYDNEY — event total</td><td class="num">${fmt(e.syd)}</td></tr>
-    ${rows("der")}<tr class="total"><td colspan="8">DERRICK — event total</td><td class="num">${fmt(e.der)}</td></tr></tbody></table>`;
-}
-const RULES=`<details class="rules"><summary>Scoring rules</summary>
-  <div class="cap">Per hole: Double Eagle +20 · Eagle +8 · Birdie +3 · Par +0.5 · Bogey −0.5 · Double+ −1.
-  Bonuses: 3-birdie streak +3 · bogey-free round +3 · all 4 rounds under 70 +5 · hole-in-one +10.
-  Finish (final only): 1st 30 · 2nd 20 · 3rd 18 · 4th 16 · 5th 14 · 6th 12 · 7th 10 · 8th 9 · 9th 8 · 10th 7 · 11–15 = 6 · 16–20 = 5 · 21–25 = 4 · 26–30 = 3 · 31–40 = 2 · 41–50 = 1 · 51+ = 0.
-  Missed cut: −5 for events with a cut (3M, Rocket, Wyndham). Playoff events (St. Jude on) are no-cut — no penalty.</div></details>`;
+/* ---------- RENDER ---------- */
+function tpCell(n){const {t,c}=topar(n);return `<td class="${c}">${t}</td>`;}
 
-/* ============ VIEWS ============ */
-function seasonView(){
-  const stjude=EVENTS.find(x=>x.id==="stjude");
-  const projSyd=SEASON.syd+stjude.syd, projDer=SEASON.der+stjude.der;
-  const bars=EVENTS.map(e=>{
-    const tot=e.syd+e.der, sp=Math.max(6,Math.round(e.syd/tot*100)), dp=100-sp;
-    return `<div class="ebar"><div class="top"><span class="ev clink" data-go="${e.id}">${e.name}</span>
-      <span class="sc">Syd ${fmt(e.syd)} · Der ${fmt(e.der)}${e.winner?` · ${e.winner==="syd"?"Sydney":"Derrick"} won 🏆`:" · in progress"}</span></div>
-      <div class="bar"><div class="s" style="width:${sp}%">${fmt(e.syd)}</div><div class="d" style="width:${dp}%">${fmt(e.der)}</div></div></div>`;
-  }).join('');
-  return `
-    <section>
-      <h2>Season standings</h2>
-      <span class="status"><span class="dot"></span>3 events complete · FedEx St. Jude in progress</span>
-      <div class="two">
-        <div class="mini">
-          <h3>Points (completed events)</h3>
-          <div class="season-row"><span>🥇 Sydney</span><b>${fmt(SEASON.syd)}</b></div>
-          <div class="season-row"><span>🥈 Derrick</span><b>${fmt(SEASON.der)}</b></div>
-          <div class="note champ" style="background:var(--pink-soft);border-color:#f0cdda;color:var(--pink-dark)">
-            Live projection incl. St. Jude R1: <b>Sydney ${fmt(projSyd)} · Derrick ${fmt(projDer)}</b>.
-            St. Jude points lock into the season total once Round 4 is final.</div>
-        </div>
-        <div class="mini">
-          <h3>🏆 Events won</h3>
-          <div class="season-row"><span><span class="pill syd"></span>Sydney</span><b>${SEASON.wonSyd}</b></div>
-          <div class="season-row"><span><span class="pill der"></span>Derrick</span><b>${SEASON.wonDer}</b></div>
-          <div class="note info">Fresh 5-player draft each event, so rosters change every week — tap a tournament to see who was on each squad.</div>
-        </div>
-      </div>
-    </section>
-    <section>
-      <h2>Event-by-event</h2>
-      <div class="cap">Click a tournament name to open its full details.</div>
-      ${bars}
-    </section>`;
+// R3
+function renderR3(side,rows){
+  let tot=0, h='';
+  rows.forEach(r=>{tot+=r.p; h+=`<tr class="${side}-row"><td class="name">${r.n}</td><td>${r.sc}</td>${tpCell(r.tp)}<td class="bonus" style="text-align:left">${r.note}</td><td class="pts">${money(r.p)}</td></tr>`;});
+  h+=`<tr class="tot"><td class="name">Team total</td><td></td><td></td><td></td><td class="pts">${money(tot)}</td></tr>`;
+  document.getElementById('r3'+side).innerHTML=h;
 }
-function eventView(e){
-  if(e.mode==="holes"){
-    return `${scoreboard(e)}
-      <section>
-        <h2>${e.name}</h2><span class="status"><span class="dot"></span>${e.status}</span>
-        <div class="cap">${e.meta}</div>
-        ${holesBrk(e)}
-        <div class="note v">✓ Verified from official Round 1 scorecards (PGA TOUR). Bonuses this round: 3-birdie streak (+3) for Matsuyama, Schauffele &amp; Hovland. No cut this event, so no missed-cut penalty. Finish-position points apply after Round 4.</div>
-      </section>
-      <section>
-        <h2>Hole-by-hole scorecards</h2>
-        <div class="legend">
-          <span><i class="dotk" style="background:var(--eagle)"></i>Eagle</span>
-          <span><i class="dotk" style="background:var(--birdie)"></i>Birdie</span>
-          <span><i class="dotk" style="background:#fff;border:1px solid var(--line)"></i>Par</span>
-          <span><i class="dotk" style="background:var(--bogey)"></i>Bogey</span>
-          <span><i class="dotk" style="background:var(--dbl)"></i>Double+</span>
-        </div>
-        ${e.players.map(grid).join('')}
-      </section>
-      <section>${RULES}</section>`;
-  }
-  // rounds mode (completed prior events)
-  let champNote;
-  if(e.champ){
-    champNote=`<div class="note champ">🏆 <b>Tournament winner:</b> ${e.champ.n} (${e.champ.t==="syd"?"Sydney's":"Derrick's"} pick) — took the event outright at 1st place.</div>`;
-  } else {
-    const top=e.players.slice().sort((a,b)=>b.pts-a.pts)[0];
-    champNote=`<div class="note info">No drafted golfer won this event outright — the tournament champion wasn't on either roster. Top drafted finish: ${top.n} (${top.t==="syd"?"Sydney":"Derrick"}, ${top.pos==="MC"?"MC":"pos "+top.pos}).</div>`;
-  }
-  return `${scoreboard(e)}
-    <section>
-      <h2>${e.name}</h2>
-      <span class="status"><span class="dot"></span>Final · ${e.winner==="syd"?"Sydney":"Derrick"} won 🏆</span>
-      <div class="cap">${e.meta}</div>
-      ${roundsBrk(e)}
-      ${champNote}
-      <div class="note info">Counts are totaled across all rounds played (Eag+ includes eagles &amp; better; Dbl+ includes double bogey or worse). Hole-by-hole wasn't captured for this event, so cards show round-level scoring from the league tracker. MC = missed cut (−5 penalty applied).</div>
-    </section>
-    <section>${RULES}</section>`;
-}
+renderR3('syd',r3.syd); renderR3('der',r3.der);
 
-/* ============ RENDER + ROUTING ============ */
-const tabsEl=document.getElementById('tabs'), viewsEl=document.getElementById('views');
-const TABS=[{id:"season",name:"Season"}].concat(EVENTS.map(e=>({id:e.id,name:e.name,e})));
-tabsEl.innerHTML=TABS.map(t=>{
-  let w="";
-  if(t.e){ if(t.e.winner==="syd")w=`<span class="w syd">Syd 🏆</span>`;
-    else if(t.e.winner==="der")w=`<span class="w der">Der 🏆</span>`;
-    else w=`<span class="w ${t.e.syd>t.e.der?'syd':'der'}">${t.e.syd>t.e.der?'Syd':'Der'} ▲</span>`; }
-  return `<button data-tab="${t.id}">${t.name}${w}</button>`;
-}).join('');
-viewsEl.innerHTML=TABS.map(t=>`<div class="view" id="v-${t.id}">${t.id==="season"?seasonView():eventView(t.e)}</div>`).join('');
-function show(id){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
-  const v=document.getElementById('v-'+id); if(!v)return;
-  v.classList.add('active');
-  document.querySelector(`#tabs button[data-tab="${id}"]`).classList.add('active');
-  if(location.hash!=='#'+id) history.replaceState(null,'','#'+id);
-  window.scrollTo({top:0,behavior:'smooth'});
+// R2
+function renderR2(side,rows){
+  let tot=0,h='';
+  rows.forEach(r=>{tot+=r.p; h+=`<tr class="${side}-row"><td class="name">${r.n}</td><td>${r.sc}</td>${tpCell(r.tp)}<td class="pts">${money(r.p)}</td></tr>`;});
+  h+=`<tr class="tot"><td class="name">Team total</td><td></td><td></td><td class="pts">${money(tot)}</td></tr>`;
+  document.getElementById('r2'+side).innerHTML=h;
 }
-tabsEl.addEventListener('click',e=>{const b=e.target.closest('button');if(b)show(b.dataset.tab);});
-viewsEl.addEventListener('click',e=>{const c=e.target.closest('[data-go]');if(c)show(c.dataset.go);});
-const start=(location.hash||'#season').slice(1);
-show(TABS.some(t=>t.id===start)?start:'season');
+renderR2('syd',r2.syd); renderR2('der',r2.der);
+
+// R1
+function renderR1(side,rows){
+  let tot=0,h='';
+  rows.forEach(r=>{tot+=r.p; h+=`<tr class="${side}-row"><td class="name">${r.n}</td><td>${r.sc}</td>${tpCell(r.tp)}<td>${r.e}</td><td>${r.b}</td><td>${r.bo}</td><td>${r.d}</td><td class="bonus">${r.bon}</td><td class="pts">${money(r.p)}</td></tr>`;});
+  h+=`<tr class="tot"><td class="name">Team total</td><td colspan="6"></td><td class="bonus"></td><td class="pts">${money(tot)}</td></tr>`;
+  document.getElementById('r1'+side).innerHTML=h;
+}
+renderR1('syd',r1.syd); renderR1('der',r1.der);
+
+// Event totals
+function renderEv(side,rows){
+  let tot=0,h='';
+  rows.forEach(r=>{const t=r.r1+r.r2+r.r3; tot+=t; h+=`<tr class="${side}-row"><td class="name">${r.n}</td><td>${money(r.r1)}</td><td>${money(r.r2)}</td><td>${money(r.r3)}</td><td class="pts">${money(t)}</td></tr>`;});
+  h+=`<tr class="tot"><td class="name">Team total</td><td></td><td></td><td></td><td class="pts">${money(tot)}</td></tr>`;
+  document.getElementById('ev'+side).innerHTML=h;
+}
+renderEv('syd',ev.syd); renderEv('der',ev.der);
+
+// Leaderboard
+(function(){let h='';lead.forEach(r=>{const {t,c}=topar(r.tp);const badge=r.tm==='syd'?'<span class="badge syd">Sydney</span>':'<span class="badge der">Derrick</span>';h+=`<tr><td><b>${r.pos}</b></td><td class="name">${r.n}</td><td>${badge}</td><td>${r.r1}</td><td>${r.r2}</td><td>${r.r3}</td><td class="${c}"><b>${t}</b></td></tr>`;});document.getElementById('leadBody').innerHTML=h;})();
+
+// Prior events
+function renderPrior(id,rows){let h='';rows.forEach(r=>{h+=`<tr><td class="name">${r[0]}</td><td class="pts syd-row" style="color:var(--pink-dk)">${money(r[1])}</td><td class="name">${r[2]}</td><td class="pts der-row" style="color:var(--green-dk)">${money(r[3])}</td></tr>`;});document.getElementById(id).innerHTML=h;}
+renderPrior('p3m',prior.p3m); renderPrior('prc',prior.prc); renderPrior('pwy',prior.pwy);
+
+// Lead note
+document.getElementById('leadNote').innerHTML = 'Derrick leads<br>the event by<br><b class="leader-der">16.5</b>';
+
+// Tabs
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('tab-'+t.dataset.tab).classList.add('active');
+}));
 </script>
 </body>
 </html>
