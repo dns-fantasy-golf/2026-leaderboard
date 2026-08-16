@@ -60,6 +60,28 @@
   .rules details{font-size:.83rem;color:#374151;}
   .rules summary{cursor:pointer;font-weight:700;color:var(--ink);}
   .rules li{margin:3px 0;}
+  /* Scorecards */
+  .subtabs{display:flex;gap:6px;justify-content:center;margin:8px 0 14px;flex-wrap:wrap;}
+  .subtab{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 13px;font-weight:600;font-size:.82rem;cursor:pointer;color:var(--ink);}
+  .subtab.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .team-h2{display:flex;align-items:center;gap:8px;font-weight:700;margin:14px 0 6px;font-size:.98rem;}
+  .cardlegend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;font-size:.74rem;color:var(--muted);margin-bottom:6px;}
+  .cardlegend span{display:inline-flex;align-items:center;gap:5px;}
+  .lc{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid rgba(0,0,0,.12);}
+  .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:10px;}
+  table.sc{border-collapse:collapse;width:100%;min-width:860px;font-size:.78rem;}
+  table.sc th,table.sc td{padding:5px 4px;text-align:center;border:1px solid var(--line);white-space:nowrap;}
+  table.sc th{background:#f3f4f6;font-size:.68rem;color:#4b5563;}
+  table.sc td.pn{text-align:left;font-weight:700;position:sticky;left:0;background:#fff;z-index:1;min-width:120px;}
+  table.sc th.pn{text-align:left;position:sticky;left:0;background:#f3f4f6;z-index:2;}
+  table.sc tr.parrow td{background:#eef2f7;font-weight:700;color:#374151;font-size:.7rem;}
+  table.sc td.tt{font-weight:800;background:#fafbfc;}
+  table.sc td.i9,table.sc th.i9{border-left:2px solid #cbd5e1;}
+  .eg{background:#ede9fe;color:#7c3aed;font-weight:800;border-radius:50%;}
+  .bd{background:#fee2e2;color:#dc2626;font-weight:800;}
+  .bg2{background:#dbeafe;color:#2563eb;font-weight:700;}
+  .db{background:#c7d2fe;color:#1e3a8a;font-weight:800;}
+  .fpc.syd{color:var(--pink-dk);font-weight:800;} .fpc.der{color:var(--green-dk);font-weight:800;}
   @media(max-width:560px){
     .team .pts{font-size:2rem;}
     header.top h1{font-size:1.25rem;}
@@ -106,6 +128,7 @@
     <button class="tab active" data-tab="r3">Round 3</button>
     <button class="tab" data-tab="r2">Round 2</button>
     <button class="tab" data-tab="r1">Round 1</button>
+    <button class="tab" data-tab="cards">📋 Scorecards</button>
     <button class="tab" data-tab="event">Event Totals</button>
     <button class="tab" data-tab="lead">Leaderboard</button>
     <button class="tab" data-tab="prior">Prior Events</button>
@@ -132,7 +155,7 @@
   <!-- ROUND 2 -->
   <div class="panel" id="tab-r2">
     <div class="note"><b>Round 2: Derrick 100.0 — Sydney 79.5 (Derrick +20.5).</b>
-      Scheffler went off for an 11-birdie 61 (37.5). Burns made a triple-bogey 7 on the par-5 3rd. ✅ Verified from official scorecards.</div>
+      Scheffler went off for an 11-birdie 61 (37.5). Burns made a double-bogey 7 on the par-5 3rd. ✅ Verified from official scorecards.</div>
     <div class="card">
       <h3><span class="dot syd"></span> Sydney — Round 2 <span class="rt leader-syd">79.5</span></h3>
       <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R2</th><th>To Par</th><th>Bir</th><th>Bog</th><th>Dbl+</th><th>Bonus</th><th>Pts</th></tr></thead>
@@ -158,6 +181,27 @@
       <table><thead><tr><th class="name" style="text-align:left">Player</th><th>R1</th><th>To Par</th><th>Eag</th><th>Bir</th><th>Bog</th><th>Dbl+</th><th>Bonus</th><th>Pts</th></tr></thead>
       <tbody id="r1der"></tbody></table>
     </div>
+  </div>
+
+  <!-- SCORECARDS -->
+  <div class="panel" id="tab-cards">
+    <div class="note">Full hole-by-hole scorecards, verified from official cards. Circled = under par, boxed = over par. The <b>Pts</b> column is that round's fantasy points (incl. bonuses).</div>
+    <div class="cardlegend">
+      <span><i class="lc" style="background:#ede9fe"></i>Eagle</span>
+      <span><i class="lc" style="background:#fee2e2"></i>Birdie</span>
+      <span><i class="lc" style="background:#fff"></i>Par</span>
+      <span><i class="lc" style="background:#dbeafe"></i>Bogey</span>
+      <span><i class="lc" style="background:#c7d2fe"></i>Dbl+</span>
+    </div>
+    <div class="subtabs">
+      <button class="subtab active" data-r="r1">Round 1</button>
+      <button class="subtab" data-r="r2">Round 2</button>
+      <button class="subtab" data-r="r3">Round 3</button>
+    </div>
+    <div class="team-h2"><span class="dot syd"></span> Sydney <span id="cardsyd-t" style="margin-left:auto;font-weight:800;color:var(--pink-dk)"></span></div>
+    <div class="scroll"><table class="sc" id="cardsyd"></table></div>
+    <div class="team-h2"><span class="dot der"></span> Derrick <span id="carder-t" style="margin-left:auto;font-weight:800;color:var(--green-dk)"></span></div>
+    <div class="scroll"><table class="sc" id="carder"></table></div>
   </div>
 
   <!-- EVENT TOTALS -->
@@ -251,7 +295,7 @@ const r2={syd:[
     {n:'Viktor Hovland',sc:64,tp:-6,b:6,bo:0,d:0,bon:'bogey-free +3',p:27.0},
     {n:'Rory McIlroy',sc:70,tp:0,b:3,bo:3,d:0,bon:'—',p:13.5},
     {n:'Hideki Matsuyama',sc:70,tp:0,b:3,bo:3,d:0,bon:'—',p:13.5},
-    {n:'Sam Burns',sc:70,tp:0,b:3,bo:1,d:1,bon:'triple 7 on #3',p:14.0},
+    {n:'Sam Burns',sc:70,tp:0,b:3,bo:1,d:1,bon:'double-bogey 7 on the par-5 3rd',p:14.0},
     {n:'Xander Schauffele',sc:72,tp:2,b:3,bo:5,d:0,bon:'—',p:11.5},
   ],der:[
     {n:'Scottie Scheffler',sc:61,tp:-9,b:11,bo:2,d:0,bon:'streak +3',p:37.5},
@@ -334,6 +378,64 @@ renderEv('syd',ev.syd,'evsyd'); renderEv('der',ev.der,'evder');
 
 function renderPrior(id,rows){let h='';rows.forEach(r=>{h+=`<tr><td class="name">${r[0]}</td><td class="pts" style="color:var(--pink-dk)">${money(r[1])}</td><td class="name">${r[2]}</td><td class="pts" style="color:var(--green-dk)">${money(r[3])}</td></tr>`;});document.getElementById(id).innerHTML=h;}
 renderPrior('p3m',prior.p3m); renderPrior('prc',prior.prc); renderPrior('pwy',prior.pwy);
+
+// ---- Scorecards (verified hole-by-hole) ----
+const PARH=[4,4,5,3,4,4,4,3,4,4,3,4,4,3,4,5,4,4];
+const cardTeams={syd:["Rory McIlroy","Hideki Matsuyama","Xander Schauffele","Viktor Hovland","Sam Burns"],
+                 der:["Scottie Scheffler","Tommy Fleetwood","Matt Fitzpatrick","Si Woo Kim","Jackson Koivun"]};
+const CARDS={
+ r1:{
+  "Rory McIlroy":[4,4,6,2,4,4,4,4,4,4,2,4,4,3,4,6,5,6],"Hideki Matsuyama":[4,5,5,4,4,4,4,2,4,5,3,3,4,2,3,4,3,3],
+  "Xander Schauffele":[4,5,5,3,4,3,3,2,4,4,3,4,5,3,4,3,4,4],"Viktor Hovland":[3,3,4,3,4,4,4,2,5,4,2,4,4,3,6,5,4,4],
+  "Sam Burns":[4,4,4,3,4,4,4,3,3,4,3,4,3,3,4,4,4,5],"Scottie Scheffler":[4,4,4,3,4,4,4,3,4,4,2,4,4,3,5,4,4,4],
+  "Tommy Fleetwood":[3,4,3,2,4,4,4,3,4,4,3,4,5,3,4,4,4,4],"Matt Fitzpatrick":[4,3,4,3,4,4,3,3,4,4,3,5,4,3,4,5,4,6],
+  "Si Woo Kim":[4,4,4,3,5,4,4,2,4,4,5,4,4,3,5,3,4,4],"Jackson Koivun":[4,4,4,4,4,4,5,2,5,3,5,4,4,3,4,5,4,3]},
+ r2:{
+  "Rory McIlroy":[4,4,4,2,4,4,5,3,4,3,3,4,4,3,4,5,5,5],"Hideki Matsuyama":[4,4,5,4,3,4,5,3,4,4,3,3,3,3,4,5,5,4],
+  "Xander Schauffele":[4,3,5,3,4,5,5,3,5,4,2,5,3,4,4,5,4,4],"Viktor Hovland":[3,4,5,3,4,3,4,3,3,4,3,4,3,3,3,4,4,4],
+  "Sam Burns":[4,4,7,3,4,4,4,3,4,4,3,4,3,3,3,4,4,5],"Scottie Scheffler":[3,3,4,2,3,3,4,4,4,3,3,5,3,3,3,4,3,4],
+  "Tommy Fleetwood":[4,4,4,3,4,4,4,3,4,4,3,4,4,3,4,4,4,4],"Matt Fitzpatrick":[4,4,5,3,4,4,4,3,4,3,2,4,4,3,4,4,5,3],
+  "Si Woo Kim":[4,4,4,3,4,4,3,3,4,4,3,4,4,4,4,4,4,4],"Jackson Koivun":[4,3,5,3,4,3,4,3,5,4,3,4,4,4,4,5,4,4]},
+ r3:{
+  "Rory McIlroy":[4,5,5,3,4,4,4,3,3,3,3,4,5,3,4,5,4,6],"Hideki Matsuyama":[3,3,5,3,4,3,5,3,3,4,4,4,4,3,3,5,4,4],
+  "Xander Schauffele":[4,3,5,2,4,4,4,3,4,4,3,4,3,3,4,4,4,6],"Viktor Hovland":[4,3,5,2,4,4,4,3,5,5,2,6,5,3,5,4,4,4],
+  "Sam Burns":[3,4,4,3,4,3,4,2,3,3,3,4,4,3,3,4,4,4],"Scottie Scheffler":[4,4,5,4,4,4,4,2,4,4,2,3,4,3,4,4,5,4],
+  "Tommy Fleetwood":[5,4,4,2,4,4,3,3,4,4,3,4,3,4,4,5,4,4],"Matt Fitzpatrick":[4,4,5,3,4,3,5,3,3,4,3,4,4,3,4,4,5,4],
+  "Si Woo Kim":[3,4,4,3,4,4,4,2,3,4,2,3,4,4,3,5,5,4],"Jackson Koivun":[4,4,4,2,4,4,4,3,4,5,3,3,4,2,4,4,4,4]}
+};
+function clsH(s,p){const d=s-p;if(s===1||d<=-2)return'eg';if(d===-1)return'bd';if(d===0)return'';if(d===1)return'bg2';return'db';}
+function fantasyH(holes){let pts=0,streak=0,mx=0,bf=true,ace=0;
+  for(let i=0;i<18;i++){const s=holes[i],d=s-PARH[i];if(s===1)ace++;
+    if(d<=-2){pts+=(d<=-3?20:8);streak++;}else if(d===-1){pts+=3;streak++;}
+    else if(d===0){pts+=0.5;streak=0;}else if(d===1){pts-=0.5;streak=0;bf=false;}
+    else{pts-=1;streak=0;bf=false;}if(streak>mx)mx=streak;}
+  let bon=0;if(mx>=3)bon+=3;if(bf)bon+=3;if(ace)bon+=10*ace;return pts+bon;}
+function buildCard(elid,round,side){
+  const rows=cardTeams[side].map(n=>({n,s:CARDS[round][n]}));
+  let h='<thead><tr><th class="pn">Player</th>';
+  for(let i=0;i<9;i++)h+=`<th>${i+1}</th>`;h+='<th class="tt">OUT</th>';
+  for(let i=9;i<18;i++)h+=`<th class="${i===9?'i9':''}">${i+1}</th>`;
+  h+='<th class="tt">IN</th><th class="tt">TOT</th><th class="tt">Pts</th></tr>';
+  let op=0,ip=0;h+='<tr class="parrow"><td class="pn">Par</td>';
+  for(let i=0;i<9;i++){op+=PARH[i];h+=`<td>${PARH[i]}</td>`;}h+=`<td>${op}</td>`;
+  for(let i=9;i<18;i++){ip+=PARH[i];h+=`<td class="${i===9?'i9':''}">${PARH[i]}</td>`;}
+  h+=`<td>${ip}</td><td>${op+ip}</td><td></td></tr></thead><tbody>`;
+  let team=0;
+  rows.forEach(r=>{let out=0,inn=0;const fp=fantasyH(r.s);team+=fp;
+    let row=`<tr><td class="pn">${r.n}</td>`;
+    for(let i=0;i<9;i++){out+=r.s[i];row+=`<td class="${clsH(r.s[i],PARH[i])}">${r.s[i]}</td>`;}
+    row+=`<td class="tt">${out}</td>`;
+    for(let i=9;i<18;i++){inn+=r.s[i];row+=`<td class="${clsH(r.s[i],PARH[i])} ${i===9?'i9':''}">${r.s[i]}</td>`;}
+    row+=`<td class="tt">${inn}</td><td class="tt">${out+inn}</td><td class="fpc ${side}">${fp.toFixed(1)}</td></tr>`;
+    h+=row;});
+  h+='</tbody>';document.getElementById(elid).innerHTML=h;
+  document.getElementById(elid+'-t').textContent=team.toFixed(1)+' pts';
+}
+function showCards(round){buildCard('cardsyd',round,'syd');buildCard('carder',round,'der');}
+showCards('r1');
+document.querySelectorAll('.subtab').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.subtab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');showCards(b.dataset.r);}));
 
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
